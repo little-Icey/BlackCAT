@@ -37,10 +37,16 @@ public class ClassInfoScanner {
             for(String cls : classes){
                 try{ // TODO
                     SootClass theClass = Scene.v().loadClassAndSupport(cls);
-                }catch (Exception e){}
+                    if(theClass.isPhantomClass()){
+                        // 由result收集类信息，相关数据结构还没写完，这里result将会把提取后的每个class保存
+                        theClass.setApplicationClass();
+                    }
+                }catch (Exception e){
+                    log.error("Load Error: {}, Message: {}", cls, e.getMessage());
+                }
             }
         }
-
+        log.info("Total {} classes", results.size());
         return null;
     }
 
