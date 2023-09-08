@@ -5,6 +5,7 @@ import icey.blackcat.util.SemanticHelper;
 import lombok.Data;
 import soot.SootClass;
 
+import java.beans.Transient;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class ClassReference {
     private List<String> interfaces = new ArrayList<>();
 
     private List<String> childClassNames = new ArrayList<>();
+
+    // @Transient // JPA注解，用于告知JPA的提供者不要持久化该属性，与transient关键字作用不同
+    private transient List<Has> hasEdge = new ArrayList<>();
 
     public static ClassReference newInstance(String name){
         ClassReference classRef = new ClassReference();
