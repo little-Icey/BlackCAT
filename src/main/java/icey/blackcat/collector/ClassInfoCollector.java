@@ -12,6 +12,19 @@ import java.util.Set;
 
 public class ClassInfoCollector {
 
+    // 先暂时不加DataContainer, 先写一个能跑的demo出来
+    public ClassReference collect0(SootClass cls){
+        ClassReference classRef = ClassReference.newInstance(cls);
+        Set<String> relatedClassnames = getAllFatherNodes(cls);
+        // setSerializable
+        // setStructsAction
+        if(cls.getMethodCount() > 0){
+            cls.getMethods().forEach(m -> extractMethodInfo(m, classRef, relatedClassnames));
+        }
+        return classRef;
+    }
+
+
     public static void extractMethodInfo(SootMethod method,
                                          ClassReference ref,
                                          Set<String> relatedClassnames){

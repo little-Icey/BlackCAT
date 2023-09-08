@@ -1,6 +1,7 @@
 package icey.blackcat.core.scanner;
 
 import icey.blackcat.bean.ClassReference;
+import icey.blackcat.collector.ClassInfoCollector;
 import icey.blackcat.util.JavaVersion;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,11 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class ClassInfoScanner {
 
-    public Map<String, CompletableFuture<ClassReference>> loadAndExtract(List<String> targets){
-        Map<String, CompletableFuture<ClassReference>> results = new HashMap<>();
+    private ClassInfoCollector collector;
+
+    public Map<String, ClassReference> loadAndExtract(List<String> targets){
+//        Map<String, CompletableFuture<ClassReference>> results = new HashMap<>();
+        Map<String, ClassReference> results = new HashMap<>();
         log.info("Start to collect {} targets' class information", targets.size());
         Map<String, List<String>> moduleClasses = null;
         if(JavaVersion.isAtLeast(9)){
@@ -39,6 +43,7 @@ public class ClassInfoScanner {
                     SootClass theClass = Scene.v().loadClassAndSupport(cls);
                     if(theClass.isPhantomClass()){
                         // 由result收集类信息，相关数据结构还没写完，这里result将会把提取后的每个class保存
+                        results.put(cls, collector.collect0(theClass));
                         theClass.setApplicationClass();
                     }
                 }catch (Exception e){
@@ -47,7 +52,7 @@ public class ClassInfoScanner {
             }
         }
         log.info("Total {} classes", results.size());
-        return null;
+        return results;
     }
 
     public List<String> getTargetClasses(String filePath, Map<String, List<String>> moduleClasses){
