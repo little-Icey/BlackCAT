@@ -37,7 +37,7 @@ public class Call {
     private transient List<Value> params = new ArrayList<>(); // 调用点的形参
     private transient Unit unit; // 代码块
 
-    private static Call newInstance(MethodReference source, MethodReference target){
+    public static Call newInstance(MethodReference source, MethodReference target){
         Call call = new Call();
         call.setId(UUID.randomUUID().toString());
         call.setSource(source);

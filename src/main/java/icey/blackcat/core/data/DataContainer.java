@@ -4,6 +4,8 @@ import icey.blackcat.bean.Call;
 import icey.blackcat.bean.ClassReference;
 import icey.blackcat.bean.Has;
 import icey.blackcat.bean.MethodReference;
+import icey.blackcat.collector.ClassInfoCollector;
+import icey.blackcat.core.scanner.ClassInfoScanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import soot.SootClass;
 import soot.SootMethod;
@@ -76,6 +78,7 @@ public class DataContainer {
         return target != null? target : getFirstMethodRefFromFatherNodes(cls, subSignature);
     }
 
+
     /**
      * 广度优先搜素
      */
@@ -104,4 +107,26 @@ public class DataContainer {
         }
         return target;
     }
+
+
+    public MethodReference getOrAddMethodRef(SootMethodRef sootMethodRef, SootMethod method){
+        MethodReference methodRef = getMethodRefBySignature(sootMethodRef);
+
+        if(methodRef == null){
+            SootClass cls = sootMethodRef.getDeclaringClass();
+            ClassReference classRef = getClassRefByName(cls.getName());
+            if(classRef == null){
+                methodRef = MethodReference.newInstance(classRef.getName(), method);
+                // 如果没有的话，需要把一个新的Has关系加入到ClassReference中
+                Has has = Has.newInstance(classRef, methodRef);
+                if(!classRef.getHasEdge().contains(has)){
+                    classRef.getHasEdge().add(has);
+                    store(has);
+                    // classinfoscanner需要创建一条新的别名边
+                }
+            }
+        }
+    }
+
+
 }

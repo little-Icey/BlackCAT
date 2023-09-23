@@ -4,12 +4,14 @@ import com.google.common.hash.Hashing;
 import icey.blackcat.util.SemanticHelper;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import soot.SootClass;
 import soot.SootMethod;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +60,7 @@ public class MethodReference {
     private Map<String, String> actions = new ConcurrentHashMap<>();
 
     // TODO 调用边的变量定义
-//    private transient Set<Call> callEdge = new HashSet<>();
+    private transient Set<Call> callEdge = new HashSet<>();
 
     private transient SootMethod sootMethod = null;
 
@@ -124,4 +126,27 @@ public class MethodReference {
     }
 
     // TODO 重写equal和hashCode
+    @Override
+    public boolean equals(Object o){
+        if(this == o) { return true; }
+        if(o == null || getClass() != o.getClass()){
+            return false;
+        }
+        MethodReference that = (MethodReference) o;
+
+        return new EqualsBuilder()
+                .append(modifiers, that.modifiers)
+                .append(paramSize, that.paramSize)
+                .append(callCounter, that.callCounter)
+                .append(isSink, that.isSink).append(isSource, that.isSource)
+                .append(isStatic, that.isStatic)
+                .append(hasParams, that.hasParams).append(isInitialed, that.isInitialed)
+                .append(isIgnore, that.isIgnore).append(isSerializable, that.isSerializable)
+                .append(isAbstract, that.isAbstract).append(isContainsSource, that.isContainsSource)
+                .append(isEndpoint, that.isEndpoint).append(isContainsOutOfMemOptions, that.isContainsOutOfMemOptions)
+                .append(isActionContainsSwap, that.isActionContainsSwap).append(id, that.id).append(name, that.name)
+                .append(signature, that.signature).append(subSignature, that.subSignature).append(returnType, that.returnType)
+                .append(className, that.className).append(vul, that.vul).append(isFromAbstractClass, that.isFromAbstractClass)
+                .isEquals();
+    }
 }
