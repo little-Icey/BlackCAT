@@ -50,25 +50,31 @@ public class Analyser {
             log.info("Targets {}, dependencies {}", realTargets.size(), 0);
             long start = System.nanoTime();
             /**
-             * TODO 抽取类信息
+             * TODO 抽取类信息 classInfoScanner.run(realTargets);
              * 构建全量函数调用图
              */
             List<String> classes = SourceLocator.v().getClassesUnder(classpaths.get(0));
 //            classes.forEach(log::info);
             for(String cls : classes) {
                 SootClass theClass = Scene.v().loadClassAndSupport(cls);
-                if(!theClass.isPhantom()){
-                    try {
-                        SootMethod method = theClass.getMethods().get(0);
-                        if(theClass.hasSuperclass() && !theClass.getSuperclass().getName().equals("java.lang.Object")){
-                            log.info("The class {} has fatherClass {}", theClass, theClass.getSuperclass());
-                        }
-//                        log.info("Class: {}, one method: {}", theClass.getName(), method);
-                        theClass.setApplicationClass();
-                    } catch (IndexOutOfBoundsException e) {
-                        log.error("错误了", e.toString());
-                    }
+                try {
+                    log.info(theClass.getName());
+                    log.info("method nums: {}\n", theClass.getMethods().size());
+                }catch (Exception e){
+                    log.error(e.toString());
                 }
+//                if(!theClass.isPhantom()){
+//                    try {
+//                        SootMethod method = theClass.getMethods().get(0);
+//                        if(theClass.hasSuperclass() && !theClass.getSuperclass().getName().equals("java.lang.Object")){
+//                            log.info("The class {} has fatherClass {}", theClass, theClass.getSuperclass());
+//                        }
+////                        log.info("Class: {}, one method: {}", theClass.getName(), method);
+//                        theClass.setApplicationClass();
+//                    } catch (IndexOutOfBoundsException e) {
+//                        log.error("错误了", e.toString());
+//                    }
+//                }
             }
             log.info("Application count: {}", Scene.v().getApplicationClasses().size());
             long time = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);

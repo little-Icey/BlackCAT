@@ -3,6 +3,7 @@ package icey.blackcat.collector;
 import icey.blackcat.bean.ClassReference;
 import icey.blackcat.bean.Has;
 import icey.blackcat.bean.MethodReference;
+import icey.blackcat.core.data.DataContainer;
 import org.springframework.scheduling.annotation.Async;
 import soot.SootClass;
 import soot.SootMethod;
@@ -12,22 +13,35 @@ import java.util.Set;
 
 public class ClassInfoCollector {
 
+    private DataContainer dataContainer;
     // 先暂时不加DataContainer, 先写一个能跑的demo出来
-    public ClassReference collect0(SootClass cls){
+
+    /*
+    * 封装
+    * */
+    public ClassReference collect(SootClass cls){
+        return collect0(cls, dataContainer);
+    }
+
+    public static ClassReference collect0(SootClass cls, DataContainer dataContainer){
         ClassReference classRef = ClassReference.newInstance(cls);
         Set<String> relatedClassnames = getAllFatherNodes(cls);
         // setSerializable
         // setStructsAction
         if(cls.getMethodCount() > 0){
-            cls.getMethods().forEach(m -> extractMethodInfo(m, classRef, relatedClassnames));
+            cls.getMethods().forEach(m -> extractMethodInfo(m, classRef, relatedClassnames, dataContainer));
         }
         return classRef;
     }
 
 
+    /*
+    * 将某个方法的相关信息保存到内存中，对于普通的调用图构建暂时没有什么作用
+    * */
     public static void extractMethodInfo(SootMethod method,
                                          ClassReference ref,
-                                         Set<String> relatedClassnames){
+                                         Set<String> relatedClassnames,
+                                         DataContainer dataContainer){
         String className = ref.getName();
         MethodReference methodRef = MethodReference.newInstance(className, method);
 
@@ -45,6 +59,8 @@ public class ClassInfoCollector {
 
         Has has = Has.newInstance(ref, methodRef);
         ref.getHasEdge().add(has);
+        dataContainer.store(has);
+        dataContainer.store(methodRef);
     }
 
     public static boolean isGetter(SootMethod method){
@@ -84,9 +100,9 @@ public class ClassInfoCollector {
             nodes.addAll(getAllFatherNodes(cls.getSuperclass()));
         }
         if(cls.getInterfaceCount() > 0){
-            cls.getInterfaces().forEach(intface -> {
-                nodes.add(intface.getName());
-                nodes.addAll(getAllFatherNodes(intface));
+            cls.getInterfaces().forEach(intFace -> {
+                nodes.add(intFace.getName());
+                nodes.addAll(getAllFatherNodes(intFace));
             });
         }
         return nodes;

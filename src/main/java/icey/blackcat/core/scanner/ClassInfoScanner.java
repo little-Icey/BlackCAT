@@ -2,6 +2,7 @@ package icey.blackcat.core.scanner;
 
 import icey.blackcat.bean.ClassReference;
 import icey.blackcat.collector.ClassInfoCollector;
+import icey.blackcat.core.data.DataContainer;
 import icey.blackcat.util.JavaVersion;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,14 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class ClassInfoScanner {
 
+    private DataContainer dataContainer;
+
     private ClassInfoCollector collector;
+
+    public void run(List<String> paths){
+        Map<String, ClassReference> classes;
+
+    }
 
     public Map<String, ClassReference> loadAndExtract(List<String> targets){
 //        Map<String, CompletableFuture<ClassReference>> results = new HashMap<>();
@@ -43,7 +51,8 @@ public class ClassInfoScanner {
                     SootClass theClass = Scene.v().loadClassAndSupport(cls);
                     if(theClass.isPhantomClass()){
                         // 由result收集类信息，相关数据结构还没写完，这里result将会把提取后的每个class保存
-                        results.put(cls, collector.collect0(theClass));
+                        // TODO 这块暂时不用CompletableFuture,只用最简单的Set
+                        results.put(cls, collector.collect(theClass));
                         theClass.setApplicationClass();
                     }
                 }catch (Exception e){
@@ -73,5 +82,34 @@ public class ClassInfoScanner {
         }
 
         return classes;
+    }
+
+    public void buildClassEdge(List<String> classes){
+        int cnt = 0;
+        int total = classes.size();
+        log.info("Build {} classes' edges", total);
+        for(String cls : classes){
+            if(cnt % 10000 == 0){
+                log.info("Built {}/{} classes.", cnt, total);
+            }
+            cnt++;
+            ClassReference clsRef = dataContainer.getClassRefByName(cls);
+            if(clsRef == null) continue;
+
+        }
+    }
+
+    public static void extractRelationship(ClassReference clsRef, DataContainer dataContainer, int depth){
+        if(clsRef.isHasSuperClass()){
+            ClassReference superClsRef = dataContainer.getClassRefByName(clsRef.getSuperClass());
+            if(superClsRef == null && depth < 10){
+
+            }
+        }
+    }
+
+    public static ClassReference collect0(String classname, SootClass cls,
+                                          DataContainer dataContainer, int depth){
+
     }
 }

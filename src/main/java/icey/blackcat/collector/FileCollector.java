@@ -33,7 +33,7 @@ public class FileCollector {
             if(Files.isDirectory(tmp)){
                 allTargets.put(cp, cp);
             }else{
-                String  filename = tmp.getFileName().toString();
+                String filename = tmp.getFileName().toString();
                 String fileMD5 = FileUtils.getFileMD5(cp);
                 // 暂时不加入全局配置
                 allTargets.put(fileMD5, cp);

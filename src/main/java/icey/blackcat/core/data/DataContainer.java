@@ -39,6 +39,8 @@ public class DataContainer {
             savedMethodRefs.put(methodRef.getSubSignature(), methodRef);
         } else if (ref instanceof Call) {
             savedCallNodes.add((Call) ref);
+        } else if (ref instanceof Has) {
+            savedHasNodes.add((Has) ref);
         }
     }
 
@@ -109,6 +111,10 @@ public class DataContainer {
     }
 
 
+    /*
+    * 从内存中找一个方法，没有的话就新建一个
+    * 后续需要添加创建新Alias边
+    * */
     public MethodReference getOrAddMethodRef(SootMethodRef sootMethodRef, SootMethod method){
         MethodReference methodRef = getMethodRefBySignature(sootMethodRef);
 
@@ -124,8 +130,11 @@ public class DataContainer {
                     store(has);
                     // classinfoscanner需要创建一条新的别名边
                 }
+                store(methodRef);
             }
         }
+
+        return methodRef;
     }
 
 
